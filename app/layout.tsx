@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/common/Sidebar";
+import MigrationRunner from "@/components/MigrationRunner";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
         <div className="flex h-screen overflow-hidden">
           <Sidebar />
           <main className="flex-1 overflow-auto pt-14 md:pt-0">
-            {children}
+            <MigrationRunner>
+              {children}
+            </MigrationRunner>
           </main>
         </div>
       </body>

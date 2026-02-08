@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { Sparkles, FileText, ChevronRight, ChevronLeft, Info, Loader2, MessageSquare } from 'lucide-react';
 import { CampaignBrief, Campaign } from '@/lib/types';
-import { saveCampaign, getTeamConfig } from '@/lib/storage';
+import { getTeamConfig } from '@/lib/storage';
+import { apiSaveCampaign } from '@/lib/campaignApi';
 import { buildExportablePrompt } from '@/lib/promptBuilder';
 import { parseJsonResponse } from '@/lib/jsonRepair';
 import CopyButton from '@/components/common/CopyButton';
@@ -198,7 +199,7 @@ export default function PlanPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      saveCampaign(campaign);
+      await apiSaveCampaign(campaign);
       return;
     }
 
@@ -246,7 +247,7 @@ export default function PlanPage() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      saveCampaign(campaign);
+      await apiSaveCampaign(campaign);
       router.push(`/plan/${campaign.id}`);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to generate plan');

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Campaign } from '@/lib/types';
-import { getCampaign, saveCampaign } from '@/lib/storage';
+import { apiGetCampaign, apiSaveRefinedCampaign } from '@/lib/campaignApi';
 import { parseJsonResponse } from '@/lib/jsonRepair';
 import CopyButton from '@/components/common/CopyButton';
 import {
@@ -30,6 +30,7 @@ export default function PlanViewPage() {
   const params = useParams();
   const router = useRouter();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
   const [refinementInput, setRefinementInput] = useState('');
   const [isRefining, setIsRefining] = useState(false);
@@ -37,8 +38,17 @@ export default function PlanViewPage() {
   const [isPdfExporting, setIsPdfExporting] = useState(false);
 
   useEffect(() => {
-    const c = getCampaign(params.id as string);
-    if (c) setCampaign(c);
+    let cancelled = false;
+    async function load() {
+      try {
+        const c = await apiGetCampaign(params.id as string);
+        if (!cancelled && c) setCampaign(c);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
   }, [params.id]);
 
   const toggleSection = (key: string) => {
@@ -90,7 +100,7 @@ export default function PlanViewPage() {
 
       const plan = parseJsonResponse(fullText) as Campaign['plan'];
       const updated = { ...campaign, plan, updatedAt: new Date().toISOString() };
-      saveCampaign(updated);
+      await apiSaveRefinedCampaign(updated);
       setCampaign(updated);
       setRefinementInput('');
     } catch (error) {
@@ -236,6 +246,17 @@ export default function PlanViewPage() {
       setIsPdfExporting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-dd-teal border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-dd-gray text-sm">Loading campaign...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!campaign) {
     return (

@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Campaign } from '@/lib/types';
-import { getCampaigns, deleteCampaign, updateCampaignStatus } from '@/lib/storage';
-import { FolderOpen, Trash2, ExternalLink, FileText } from 'lucide-react';
+import { apiGetOwnedCampaigns, apiDeleteCampaign, apiUpdateCampaignStatus } from '@/lib/campaignApi';
+import { FolderOpen, Trash2, ExternalLink, FileText, Loader2 } from 'lucide-react';
 
 const statusColors: Record<string, string> = {
   draft: 'bg-yellow-100 text-yellow-800',
@@ -16,22 +16,42 @@ const statusColors: Record<string, string> = {
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setCampaigns(getCampaigns());
+    apiGetOwnedCampaigns()
+      .then(setCampaigns)
+      .catch(() => setCampaigns([]))
+      .finally(() => setLoading(false));
   }, []);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this campaign?')) {
-      deleteCampaign(id);
-      setCampaigns(getCampaigns());
+      await apiDeleteCampaign(id);
+      setCampaigns(prev => prev.filter(c => c.id !== id));
     }
   };
 
-  const handleStatusChange = (id: string, status: Campaign['status']) => {
-    updateCampaignStatus(id, status);
-    setCampaigns(getCampaigns());
+  const handleStatusChange = async (id: string, status: Campaign['status']) => {
+    const updated = await apiUpdateCampaignStatus(id, status);
+    setCampaigns(prev => prev.map(c => c.id === id ? updated : c));
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <div>
+            <h1 className="text-xl md:text-2xl font-bold text-dd-slate">My Campaigns</h1>
+            <p className="text-sm text-dd-gray mt-1">View and manage your saved campaign plans.</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-6 h-6 text-dd-teal animate-spin" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6">
