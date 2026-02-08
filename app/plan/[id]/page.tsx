@@ -233,9 +233,52 @@ export default function PlanViewPage() {
   const plan = campaign.plan;
 
   return (
-    <div className="flex h-full">
-      {/* Tab sidebar */}
-      <div className="w-56 bg-white border-r border-dd-border shrink-0 overflow-y-auto">
+    <div className="flex flex-col md:flex-row h-full">
+      {/* Mobile header */}
+      <div className="md:hidden bg-white border-b border-dd-border px-4 py-3">
+        <div className="flex items-center justify-between mb-2">
+          <button
+            onClick={() => router.push('/campaigns')}
+            className="flex items-center gap-1 text-sm text-dd-gray hover:text-dd-teal"
+          >
+            <ArrowLeft size={14} /> Back
+          </button>
+          <button
+            onClick={handleExportPDF}
+            disabled={isPdfExporting}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-dd-navy text-white rounded-lg disabled:opacity-50"
+          >
+            <Download size={12} /> {isPdfExporting ? 'Generating...' : 'PDF'}
+          </button>
+        </div>
+        <h2 className="font-semibold text-dd-slate text-sm truncate">{campaign.name}</h2>
+      </div>
+
+      {/* Mobile horizontal tab bar */}
+      <div className="md:hidden bg-white border-b border-dd-border overflow-x-auto">
+        <div className="flex">
+          {tabs.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3 py-2.5 text-xs whitespace-nowrap shrink-0 transition-all border-b-2 ${
+                  activeTab === tab.id
+                    ? 'text-dd-teal border-dd-teal bg-dd-teal/5'
+                    : 'text-dd-gray border-transparent'
+                }`}
+              >
+                <Icon size={13} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Desktop tab sidebar */}
+      <div className="hidden md:flex md:flex-col w-56 bg-white border-r border-dd-border shrink-0 overflow-y-auto">
         <div className="p-4 border-b border-dd-border">
           <button
             onClick={() => router.push('/campaigns')}
@@ -284,7 +327,7 @@ export default function PlanViewPage() {
 
       {/* Main content */}
       <div className="flex-1 overflow-y-auto">
-        <div id="plan-content" className={`p-6 max-w-4xl ${isPdfExporting ? 'space-y-12' : ''}`}>
+        <div id="plan-content" className={`p-4 md:p-6 max-w-4xl ${isPdfExporting ? 'space-y-12' : ''}`}>
           {/* Executive Summary */}
           {(activeTab === 'summary' || isPdfExporting) && (
             <div className="space-y-6">
@@ -297,7 +340,7 @@ export default function PlanViewPage() {
               </div>
 
               {/* Metrics row */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-lg shadow-sm border border-dd-border p-4">
                   <div className="text-xs text-dd-gray mb-1">Brief Quality</div>
                   <div className="flex items-center gap-1">
@@ -376,7 +419,7 @@ export default function PlanViewPage() {
 
                       <div>
                         <h4 className="text-sm font-semibold text-dd-navy mb-1">Performance Benchmarks</h4>
-                        <div className="grid grid-cols-4 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                           <div className="bg-dd-gray-light rounded p-2">
                             <div className="text-xs text-dd-gray">CPC</div>
                             <div className="text-sm font-semibold text-dd-slate">{channel.benchmarks?.cpc_range}</div>
@@ -655,7 +698,7 @@ export default function PlanViewPage() {
               {plan.budget_and_resources?.cost_comparison && (
                 <div className="bg-white rounded-lg shadow-sm border border-dd-border p-4">
                   <h3 className="font-semibold text-dd-navy mb-3">Cost Comparison</h3>
-                  <div className="grid grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="bg-green-50 rounded-lg p-3 text-center border-2 border-green-200">
                       <div className="text-xs text-green-600 font-semibold mb-1">Full DIY</div>
                       <div className="text-lg font-bold text-green-700">{plan.budget_and_resources.cost_comparison.diy_total}</div>

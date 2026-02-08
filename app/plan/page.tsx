@@ -323,9 +323,9 @@ export default function PlanPage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-dd-slate">Plan a Campaign</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Plan a Campaign</h1>
         <p className="text-sm text-dd-gray mt-1">
           Build a detailed advertising brief and get a comprehensive plan tailored to Dye & Durham.
         </p>
@@ -654,7 +654,7 @@ export default function PlanPage() {
           <p className="text-xs text-dd-gray mb-6 ml-8">When should this run and what can you spend?</p>
 
           <div className="space-y-5">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-dd-slate mb-1">Start Date</label>
                 <input

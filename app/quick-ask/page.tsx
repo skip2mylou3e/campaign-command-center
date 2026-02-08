@@ -126,15 +126,15 @@ export default function QuickAskPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="bg-white border-b border-dd-border px-6 py-4">
-        <h1 className="text-2xl font-bold text-dd-slate">Quick Ask</h1>
+      <div className="bg-white border-b border-dd-border px-4 md:px-6 py-3 md:py-4">
+        <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Quick Ask</h1>
         <p className="text-sm text-dd-gray mt-1">
           Ask any digital advertising question — get specific, actionable answers tailored to Dye & Durham.
         </p>
       </div>
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full">
             <Sparkles className="w-12 h-12 text-dd-teal mb-4" />
@@ -208,8 +208,8 @@ export default function QuickAskPage() {
       </div>
 
       {/* Input area */}
-      <div className="bg-white border-t border-dd-border px-6 py-4">
-        <div className="max-w-3xl mx-auto flex gap-3">
+      <div className="bg-white border-t border-dd-border px-4 md:px-6 py-3 md:py-4">
+        <div className="max-w-3xl mx-auto flex gap-2 md:gap-3">
           <textarea
             ref={inputRef}
             value={input}

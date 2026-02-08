@@ -34,15 +34,15 @@ export default function CampaignsPage() {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-dd-slate">My Campaigns</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-dd-slate">My Campaigns</h1>
           <p className="text-sm text-dd-gray mt-1">View and manage your saved campaign plans.</p>
         </div>
         <Link
           href="/plan"
-          className="px-4 py-2 text-sm font-medium bg-dd-teal text-white rounded-lg hover:bg-dd-teal-light"
+          className="px-4 py-2 text-sm font-medium bg-dd-teal text-white rounded-lg hover:bg-dd-teal-light text-center sm:text-left shrink-0"
         >
           + New Campaign
         </Link>
@@ -69,15 +69,15 @@ export default function CampaignsPage() {
               key={campaign.id}
               className="bg-white rounded-lg shadow-sm border border-dd-border p-4 hover:border-dd-teal/30 transition-all"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-1">
                     <h3 className="font-semibold text-dd-slate truncate">{campaign.name}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${statusColors[campaign.status] || statusColors.draft}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${statusColors[campaign.status] || statusColors.draft}`}>
                       {campaign.status.replace('_', ' ')}
                     </span>
                   </div>
-                  <div className="flex gap-4 text-xs text-dd-gray">
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-dd-gray">
                     <span>{campaign.objective}</span>
                     <span>{new Date(campaign.createdAt).toLocaleDateString()}</span>
                     {campaign.brief.geography.length > 0 && (
@@ -86,7 +86,7 @@ export default function CampaignsPage() {
                     {campaign.brief.budgetRange && <span>{campaign.brief.budgetRange}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 ml-4">
+                <div className="flex items-center gap-2">
                   <select
                     value={campaign.status}
                     onChange={(e) => handleStatusChange(campaign.id, e.target.value as Campaign['status'])}

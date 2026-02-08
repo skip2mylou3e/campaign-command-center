@@ -46,10 +46,10 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 md:p-6 max-w-3xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-dd-slate">Settings</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Settings</h1>
           <p className="text-sm text-dd-gray mt-1">
             Configure your team&apos;s tech stack. This context is included in every AI interaction.
           </p>
@@ -71,7 +71,7 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-dd-navy mb-4 border-b border-dd-border pb-2">Tech Stack</h2>
 
         <div className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-dd-slate mb-1">CRM / Marketing Automation</label>
               <select
@@ -99,7 +99,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-dd-slate mb-1">Sales CRM</label>
               <select
@@ -126,7 +126,7 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-dd-slate mb-1">Website Platform</label>
               <select
@@ -172,7 +172,7 @@ export default function SettingsPage() {
 
           <div>
             <label className="block text-sm font-medium text-dd-slate mb-2">Creative Tools</label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {creativeToolOptions.map(tool => (
                 <label key={tool} className="flex items-center gap-2 text-sm cursor-pointer">
                   <input
@@ -219,7 +219,7 @@ export default function SettingsPage() {
             <p className="text-xs text-dd-gray italic mt-1">Included in messaging recommendations.</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-dd-slate mb-1">Legal Review Time</label>
               <select

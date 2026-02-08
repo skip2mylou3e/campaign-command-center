@@ -27,16 +27,16 @@ export default function GlossaryPage() {
   });
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-4 md:p-6 max-w-4xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-dd-slate">Glossary</h1>
+        <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Glossary</h1>
         <p className="text-sm text-dd-gray mt-1">
           Digital advertising terms explained in plain language.
         </p>
       </div>
 
       {/* Search and filter */}
-      <div className="flex gap-3 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-dd-gray" />
           <input
