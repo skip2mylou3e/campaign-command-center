@@ -61,16 +61,27 @@ export default function PlanViewPage() {
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to refine');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server error ${response.status}`);
+      }
+
+      if (!response.body) {
+        throw new Error('No response body received');
+      }
 
       // Read the streamed text response
-      const reader = response.body!.getReader();
+      const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let fullText = '';
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
         fullText += decoder.decode(value, { stream: true });
+      }
+
+      if (!fullText.trim()) {
+        throw new Error('Empty response from server');
       }
 
       if (fullText.startsWith('__STREAM_ERROR__')) {
@@ -82,8 +93,8 @@ export default function PlanViewPage() {
       saveCampaign(updated);
       setCampaign(updated);
       setRefinementInput('');
-    } catch {
-      alert('Failed to refine plan. Please try again.');
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Failed to refine plan. Please try again.');
     } finally {
       setIsRefining(false);
     }
