@@ -61,22 +61,47 @@ Generate the comprehensive campaign plan now. Return ONLY valid JSON matching th
     // Use streaming API to avoid Vercel function timeout.
     // Streaming keeps the connection alive as long as data flows,
     // so the 60s timeout only applies between chunks, not total time.
-    const stream = client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 16384,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    });
-
+    // If the response is truncated (max_tokens hit), auto-continue.
     const encoder = new TextEncoder();
     const readable = new ReadableStream({
       async start(controller) {
         try {
-          stream.on('text', (text) => {
-            controller.enqueue(encoder.encode(text));
-          });
+          let fullText = '';
+          const messages: Anthropic.MessageParam[] = [{ role: 'user', content: userMessage }];
 
-          await stream.finalMessage();
+          // Allow up to 3 continuation attempts
+          for (let attempt = 0; attempt < 3; attempt++) {
+            const stream = client.messages.stream({
+              model: 'claude-sonnet-4-20250514',
+              max_tokens: 16384,
+              system: systemPrompt,
+              messages,
+            });
+
+            let chunkText = '';
+            stream.on('text', (text) => {
+              chunkText += text;
+              controller.enqueue(encoder.encode(text));
+            });
+
+            const finalMsg = await stream.finalMessage();
+            fullText += chunkText;
+
+            // If model finished naturally, we're done
+            if (finalMsg.stop_reason === 'end_turn') {
+              break;
+            }
+
+            // If truncated (max_tokens), continue the response
+            if (finalMsg.stop_reason === 'max_tokens') {
+              // Add the partial response as assistant message, then ask to continue
+              messages.push({ role: 'assistant', content: fullText });
+              messages.push({ role: 'user', content: 'Continue the JSON exactly from where you left off. Do not repeat any content. Do not add any preamble. Just continue the JSON.' });
+            } else {
+              break;
+            }
+          }
+
           controller.close();
         } catch (err) {
           // Send error as a special prefix so client can detect it

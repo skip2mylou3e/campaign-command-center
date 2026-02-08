@@ -64,7 +64,12 @@ READINESS CHECK:
 - Check: creative assets, landing page, tracking/pixels, legal compliance
 - For legal compliance, be geography-specific (CASL for Canada, ASA/GDPR for UK, ACL/SPAM Act for Australia)
 
-Respond ONLY with valid JSON matching the schema below. No markdown fences. No preamble. No commentary outside the JSON.
+CRITICAL OUTPUT RULES:
+1. Respond ONLY with valid JSON matching the schema below. No markdown fences. No preamble. No commentary outside the JSON.
+2. You MUST include ALL sections in the JSON — every single key in the schema must be present and populated. Do NOT stop after a few sections.
+3. PRIORITIZE COMPLETENESS over verbosity. Keep each section concise and actionable. A complete plan with brief entries is far better than a partial plan with extremely detailed early sections.
+4. For channel_mix, include a MAXIMUM of 3 channels. Keep setup_instructions to 5-7 steps max. Keep example_ad_copy to 2 examples max.
+5. Budget your response: aim for roughly 20% on executive_summary+channels, 15% on audience+creative, 15% on budget, 15% on timeline, 15% on measurement, 20% on risks+compliance+readiness+quick_start.
 
 JSON SCHEMA:
 {
