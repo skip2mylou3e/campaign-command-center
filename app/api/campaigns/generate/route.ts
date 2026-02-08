@@ -63,7 +63,7 @@ Generate the comprehensive campaign plan now. Return ONLY valid JSON matching th
     // so the 60s timeout only applies between chunks, not total time.
     const stream = client.messages.stream({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 8192,
+      max_tokens: 16384,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
