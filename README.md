@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Campaign Command Center
 
-## Getting Started
+A browser-based digital advertising strategy tool built for the Dye & Durham marketing team. More than a campaign planner — it's an always-available digital advertising strategist, teacher, and operations hub.
 
-First, run the development server:
+## What This App Does
+
+- **Quick Ask** — Chat-based Q&A for fast digital advertising answers, tailored to D&D's legal tech context
+- **Plan a Campaign** — Guided brief builder that generates comprehensive campaign plans via AI, or produces a copy-paste prompt for any AI assistant
+- **My Campaigns** — Dashboard of saved campaign plans with status tracking
+- **Glossary** — Searchable glossary of 50+ digital advertising terms explained in plain language
+- **Settings** — Team configuration (tech stack, experience level, tools) that customizes all AI recommendations
+
+## Tech Stack
+
+- **Next.js 14** (App Router) with TypeScript
+- **Tailwind CSS** with Dye & Durham brand colors
+- **Anthropic Claude API** for AI-powered features
+- **localStorage** for data persistence (database-ready architecture)
+- **html2canvas + jsPDF** for client-side PDF export
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repo-url>
+cd campaign-command-center
+npm install
+cp .env.example .env.local    # then fill in your API key
+npm run dev                    # runs on http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Environment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env.local` file:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+ANTHROPIC_API_KEY=sk-ant-your-key-here
+```
 
-## Learn More
+**The app works without an API key** — you can use the "Give me a prompt" mode in Plan a Campaign to generate prompts you paste into Claude or ChatGPT. Quick Ask and Auto-Generate require the API key.
 
-To learn more about Next.js, take a look at the following resources:
+## Deploying to Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push code to GitHub
+2. Go to [vercel.com](https://vercel.com) → New Project → Import from GitHub
+3. Add environment variables in Vercel Dashboard → Settings → Environment Variables:
+   - `ANTHROPIC_API_KEY`
+4. Deploy happens automatically on push to `main`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Note:** Full Plan auto-generation can take 15-45 seconds. Vercel Hobby plan has a 10-second timeout. You may need Vercel Pro ($20/month) for reliable auto-generation, or the streaming implementation keeps responses within limits.
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+app/                    # Next.js App Router pages
+  quick-ask/           # Quick Ask chat interface
+  plan/                # Brief Builder + Plan View
+  campaigns/           # My Campaigns dashboard
+  glossary/            # Searchable glossary
+  settings/            # Team configuration
+  api/                 # API routes (serverless)
+components/            # React components
+lib/                   # Utilities, prompts, types
+data/                  # Static data (platforms.json, glossary.json)
+public/images/         # D&D logo
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Build Later Features
+
+These are documented in the spec but not built in the initial version. The architecture supports adding them:
+
+- **Post-Mortem mode** — Input actual campaign results, get AI analysis
+- **Brief Analyzer** — Natural language → pre-populated form fields via AI
+- **Readiness Checker** — Interactive pre-step with persistent checklist
+- **Market Check** — Dedicated web search for fresh benchmark data
+- **Persistent execution checklists** — Checkable items saved to database
+- **Campaign templates** — Save/clone campaigns as reusable templates
+- **Executive summary export** — Separate 1-page PDF for stakeholders
+- **Learn section guides** — 10 pre-written how-to guides
+- **Quick Ask search** — Search over past Q&A history
+- **Campaign comparison** — Side-by-side view of saved plans
+- **Insights accumulation** — Post-mortem learnings injected into future plans
+- **Database migration** — Switch from localStorage to Vercel Postgres + Drizzle ORM
+
+## Brand Customization
+
+Brand colors are defined in `tailwind.config.ts` under `theme.extend.colors.dd`. Update hex values there to match official brand guidelines — all components reference these variables.
+
+The D&D logo is loaded from `public/images/dd-logo.png`. Replace this file with the official logo.

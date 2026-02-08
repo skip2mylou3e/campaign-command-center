@@ -1,0 +1,108 @@
+{
+  "platforms": [
+    {
+      "name": "Google Ads (Search)",
+      "id": "google_search",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["consideration", "conversion"],
+      "min_daily_budget": {"CAD": "$15-25", "GBP": "£10-20", "AUD": "$15-25"},
+      "setup_url": "https://ads.google.com",
+      "key_formats": ["Responsive Search Ads"],
+      "best_for": "Capturing existing demand from people actively searching for legal tech solutions",
+      "diy_difficulty": "moderate",
+      "typical_b2b_legal_cpc": {"CAD": "$3-8", "GBP": "£2-6", "AUD": "$3-8"},
+      "typical_b2b_legal_ctr": "2-5%",
+      "learning_phase": "2-4 weeks",
+      "notes": "Requires keyword research. HubSpot can track conversions from Google Ads natively."
+    },
+    {
+      "name": "Google Ads (Display / GDN)",
+      "id": "google_display",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness", "retargeting"],
+      "min_daily_budget": {"CAD": "$15-25", "GBP": "£10-20", "AUD": "$15-25"},
+      "setup_url": "https://ads.google.com",
+      "key_formats": ["Responsive Display Ads", "Custom Intent Audiences"],
+      "best_for": "Broad awareness and retargeting website visitors across the web",
+      "diy_difficulty": "easy",
+      "typical_b2b_legal_cpc": {"CAD": "$0.50-2", "GBP": "£0.30-1.50", "AUD": "$0.50-2"},
+      "typical_b2b_legal_ctr": "0.3-0.8%",
+      "learning_phase": "1-2 weeks",
+      "notes": "Great for retargeting. Low CPCs but also lower intent. Requires image assets."
+    },
+    {
+      "name": "LinkedIn Ads",
+      "id": "linkedin",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness", "consideration", "conversion"],
+      "min_daily_budget": {"CAD": "$15", "GBP": "£10", "AUD": "$15"},
+      "setup_url": "https://www.linkedin.com/campaignmanager",
+      "key_formats": ["Sponsored Content (Single Image)", "Sponsored Content (Carousel)", "Sponsored Content (Video)", "Document Ads", "Lead Gen Forms", "Message Ads", "Text Ads"],
+      "best_for": "Precise B2B targeting by job title, company, industry, seniority — ideal for legal professionals",
+      "diy_difficulty": "easy",
+      "typical_b2b_legal_cpc": {"CAD": "$6-15", "GBP": "£5-12", "AUD": "$6-15"},
+      "typical_b2b_legal_ctr": "0.3-0.6%",
+      "learning_phase": "2-3 weeks",
+      "notes": "Most expensive per click but highest quality B2B targeting. Lead Gen Forms can bypass the need for a landing page. LinkedIn Insight Tag integrates with HubSpot."
+    },
+    {
+      "name": "Meta Ads (Facebook / Instagram)",
+      "id": "meta",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness", "consideration"],
+      "min_daily_budget": {"CAD": "$7-15", "GBP": "£5-10", "AUD": "$7-15"},
+      "setup_url": "https://business.facebook.com",
+      "key_formats": ["Image Ads", "Video Ads", "Carousel", "Lead Ads"],
+      "best_for": "Broad awareness, retargeting, and lookalike audiences. Less precise B2B targeting than LinkedIn but much cheaper.",
+      "diy_difficulty": "moderate",
+      "typical_b2b_legal_cpc": {"CAD": "$1-4", "GBP": "£0.80-3", "AUD": "$1-4"},
+      "typical_b2b_legal_ctr": "0.5-1.2%",
+      "learning_phase": "1-2 weeks",
+      "notes": "B2B targeting is weaker than LinkedIn — relies more on interest/behavior signals. Best used for retargeting or alongside LinkedIn."
+    },
+    {
+      "name": "YouTube Ads (via Google Ads)",
+      "id": "youtube",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness"],
+      "min_daily_budget": {"CAD": "$15-25", "GBP": "£10-20", "AUD": "$15-25"},
+      "setup_url": "https://ads.google.com",
+      "key_formats": ["Skippable In-Stream", "Bumper Ads (6 sec)", "Discovery Ads"],
+      "best_for": "Video-based brand awareness and thought leadership — requires video assets",
+      "diy_difficulty": "advanced",
+      "typical_b2b_legal_cpv": {"CAD": "$0.05-0.15", "GBP": "£0.03-0.12", "AUD": "$0.05-0.15"},
+      "typical_b2b_legal_vtr": "15-35%",
+      "learning_phase": "2-3 weeks",
+      "notes": "Requires video production capability. B2B targeting is via Google Audiences (not as precise as LinkedIn). Best for thought leadership and brand building."
+    },
+    {
+      "name": "Industry Publications & Sponsorships",
+      "id": "industry_pubs",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness", "consideration"],
+      "min_daily_budget": "Varies — typically $2K-$10K per placement",
+      "setup_url": "Direct contact with publications",
+      "key_formats": ["Banner Ads", "Sponsored Content / Advertorial", "Newsletter Sponsorship", "Webinar Sponsorship"],
+      "best_for": "Reaching legal professionals in trusted, high-credibility industry contexts",
+      "diy_difficulty": "easy",
+      "publications": {
+        "CA": ["Canadian Lawyer Magazine", "Law Times", "Slaw.ca", "Canadian Bar Association publications", "The Lawyer's Daily"],
+        "UK": ["The Law Society Gazette", "Legal Futures", "The Lawyer", "LegalTech News", "Legal IT Insider"],
+        "AU": ["Lawyers Weekly", "Law Society Journal", "Australasian Lawyer", "Lexology"]
+      },
+      "notes": "Pricing is typically flat-rate (not CPC/CPM bidding). Negotiate directly with publications. Often requires longer lead times (4-8 weeks)."
+    },
+    {
+      "name": "Programmatic Display (via DSP)",
+      "id": "programmatic",
+      "geographies": ["CA", "UK", "AU"],
+      "funnel_stages": ["awareness", "retargeting"],
+      "min_daily_budget": "Typically requires $50+/day or $3K+ monthly minimums",
+      "setup_url": "Requires DSP platform (e.g., StackAdapt, The Trade Desk)",
+      "key_formats": ["Display Banners", "Native Ads", "Connected TV"],
+      "best_for": "Advanced targeting at scale — usually better for larger budgets or with agency/platform support",
+      "diy_difficulty": "advanced",
+      "notes": "Not recommended for teams just starting with digital advertising. Consider this once you've mastered Google Ads and LinkedIn."
+    }
+  ]
+}
