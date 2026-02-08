@@ -42,7 +42,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-dd-navy flex items-center justify-between px-4 py-3">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-dd-navy flex items-center justify-between px-4 h-14">
         <Link href="/" className="flex items-center gap-2">
           {logoExists ? (
             <Image src="/images/dd-logo.png" alt="Dye & Durham" width={100} height={28} />
