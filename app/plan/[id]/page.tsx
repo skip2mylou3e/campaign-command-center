@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Campaign } from '@/lib/types';
 import { getCampaign, saveCampaign } from '@/lib/storage';
+import { parseJsonResponse } from '@/lib/jsonRepair';
 import CopyButton from '@/components/common/CopyButton';
 import {
   Download, ArrowLeft, Send,
@@ -61,9 +62,23 @@ export default function PlanViewPage() {
       });
 
       if (!response.ok) throw new Error('Failed to refine');
-      const data = await response.json();
 
-      const updated = { ...campaign, plan: data.plan, updatedAt: new Date().toISOString() };
+      // Read the streamed text response
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      if (fullText.startsWith('__STREAM_ERROR__')) {
+        throw new Error(fullText.replace('__STREAM_ERROR__', ''));
+      }
+
+      const plan = parseJsonResponse(fullText) as Campaign['plan'];
+      const updated = { ...campaign, plan, updatedAt: new Date().toISOString() };
       saveCampaign(updated);
       setCampaign(updated);
       setRefinementInput('');
