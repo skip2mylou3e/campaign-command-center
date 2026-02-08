@@ -4,6 +4,7 @@ import { buildFullPlanSystemPrompt, buildBriefContext } from '@/lib/prompts/full
 import { TeamConfig } from '@/lib/types';
 import platformsData from '@/data/platforms.json';
 
+export const runtime = 'edge';
 export const maxDuration = 60;
 
 const DEFAULT_CONFIG: TeamConfig = {
