@@ -49,7 +49,7 @@ export default function Sidebar() {
           ) : (
             <span className="text-white font-bold text-sm">Dye & Durham</span>
           )}
-          <span className="text-dd-teal text-[10px] font-medium">CCC</span>
+          <span className="text-dd-teal text-[10px] font-medium">Campaign Command Center</span>
         </Link>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white p-1">
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
