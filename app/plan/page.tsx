@@ -7,6 +7,7 @@ import { Sparkles, FileText, ChevronRight, ChevronLeft, Info, Loader2, MessageSq
 import { CampaignBrief, Campaign } from '@/lib/types';
 import { saveCampaign, getTeamConfig } from '@/lib/storage';
 import { buildExportablePrompt } from '@/lib/promptBuilder';
+import { parseJsonResponse } from '@/lib/jsonRepair';
 import CopyButton from '@/components/common/CopyButton';
 import LoadingTips from '@/components/common/LoadingTips';
 
@@ -201,7 +202,7 @@ export default function PlanPage() {
       return;
     }
 
-    // Auto-generate path
+    // Auto-generate path (streaming to avoid Vercel timeout)
     setIsGenerating(true);
     try {
       const response = await fetch('/api/campaigns/generate', {
@@ -215,7 +216,24 @@ export default function PlanPage() {
         throw new Error(errData.error || 'Failed to generate plan');
       }
 
-      const data = await response.json();
+      // Read the streamed text response
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      // Check for stream error
+      if (fullText.startsWith('__STREAM_ERROR__')) {
+        throw new Error(fullText.replace('__STREAM_ERROR__', ''));
+      }
+
+      // Parse the accumulated JSON with repair fallback
+      const plan = parseJsonResponse(fullText) as Campaign['plan'];
 
       const campaign: Campaign = {
         id: uuidv4(),
@@ -223,7 +241,7 @@ export default function PlanPage() {
         status: 'draft',
         objective: finalBrief.objective,
         brief: finalBrief,
-        plan: data.plan,
+        plan,
         generatedPrompt: null,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),

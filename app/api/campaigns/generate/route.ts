@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { buildFullPlanSystemPrompt, buildBriefContext } from '@/lib/prompts/fullPlan';
-import { parseJsonResponse } from '@/lib/jsonRepair';
 import { TeamConfig } from '@/lib/types';
 import platformsData from '@/data/platforms.json';
 
@@ -59,23 +58,41 @@ ${platformContext}
 
 Generate the comprehensive campaign plan now. Return ONLY valid JSON matching the schema in your system prompt.`;
 
-    const response = await client.messages.create({
+    // Use streaming API to avoid Vercel function timeout.
+    // Streaming keeps the connection alive as long as data flows,
+    // so the 60s timeout only applies between chunks, not total time.
+    const stream = client.messages.stream({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 8192,
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
 
-    // Extract text from response
-    const textBlock = response.content.find(block => block.type === 'text');
-    if (!textBlock || textBlock.type !== 'text') {
-      throw new Error('No text response from Claude');
-    }
+    const encoder = new TextEncoder();
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          stream.on('text', (text) => {
+            controller.enqueue(encoder.encode(text));
+          });
 
-    // Parse JSON with repair fallback
-    const plan = parseJsonResponse(textBlock.text);
+          await stream.finalMessage();
+          controller.close();
+        } catch (err) {
+          // Send error as a special prefix so client can detect it
+          const errMsg = err instanceof Error ? err.message : 'Stream error';
+          controller.enqueue(encoder.encode(`__STREAM_ERROR__${errMsg}`));
+          controller.close();
+        }
+      },
+    });
 
-    return Response.json({ plan });
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+      },
+    });
   } catch (error) {
     console.error('Plan generation error:', error);
     return Response.json(
