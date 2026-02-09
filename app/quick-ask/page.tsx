@@ -1,10 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react';
+import { Send, ThumbsUp, ThumbsDown, Sparkles, RotateCcw } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { QuickAskMessage } from '@/lib/types';
-import { getQuickAskHistory, saveQuickAskMessage } from '@/lib/storage';
+import { getQuickAskHistory, saveQuickAskMessage, clearQuickAskHistory } from '@/lib/storage';
 
 const starterQuestions = [
   "Should I use LinkedIn or Google Ads for reaching lawyers in the UK?",
@@ -117,6 +117,12 @@ export default function QuickAskPage() {
     }
   };
 
+  const handleClear = () => {
+    clearQuickAskHistory();
+    setMessages([]);
+    setInput('');
+  };
+
   const handleFeedback = (messageId: string, helpful: boolean) => {
     setMessages(prev =>
       prev.map(m => m.id === messageId ? { ...m, helpful } : m)
@@ -127,7 +133,18 @@ export default function QuickAskPage() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="bg-white border-b border-dd-border px-4 md:px-6 py-3 md:py-4">
-        <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Quick Ask</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl md:text-2xl font-bold text-dd-slate">Quick Ask</h1>
+          {messages.length > 0 && (
+            <button
+              onClick={handleClear}
+              className="flex items-center gap-1.5 text-sm text-dd-gray hover:text-dd-teal transition-colors"
+            >
+              <RotateCcw size={14} />
+              New Chat
+            </button>
+          )}
+        </div>
         <p className="text-sm text-dd-gray mt-1">
           Ask any digital advertising question — get specific, actionable answers tailored to Dye & Durham.
         </p>
