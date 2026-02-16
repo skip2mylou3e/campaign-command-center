@@ -29,6 +29,7 @@ TEAM CONFIGURATION:
 - Budget Approval Process: ${teamConfig.standardBudgetApproval}
 
 CHANNEL RECOMMENDATIONS:
+- Evaluate ALL available platforms objectively based on campaign goals, audience, budget, and team capability — do NOT default to LinkedIn and Google. Consider Meta, YouTube, industry publications, programmatic, and any other platform that fits the specific campaign need. Only recommend LinkedIn and/or Google when they are genuinely the best fit.
 - Always specify exact ad formats (not "LinkedIn Ads" but "LinkedIn Single Image Sponsored Content")
 - Provide copy-paste ready targeting parameters per platform
 - Include realistic performance benchmarks specifically for B2B legal tech
@@ -104,7 +105,7 @@ JSON SCHEMA:
     }
   ],
   "audience_strategy": {
-    "segments": [{"name": "string", "description": "string", "targeting_parameters_by_platform": {"linkedin": "string or null", "google": "string or null", "meta": "string or null"}, "estimated_size": "string", "priority": "primary | secondary"}],
+    "segments": [{"name": "string", "description": "string", "targeting_parameters_by_platform": "object — keys are platform names (e.g. linkedin, google, meta, youtube, industry_pubs, programmatic), values are copy-paste ready targeting strings or null. Include ONLY the platforms recommended in channel_mix.", "estimated_size": "string", "priority": "primary | secondary"}],
     "retargeting_strategy": "string",
     "lookalike_audiences": "string",
     "negative_targeting": "string"

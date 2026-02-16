@@ -113,6 +113,7 @@ export function buildExportablePrompt(brief: CampaignBrief, config: TeamConfig):
 10. **Quick-Start Priorities** — The top 3 highest-impact actions, a minimum viable campaign version (one channel, minimum budget), a half-budget version, and a "2 hours per week" version.
 
 IMPORTANT GUIDELINES:
+- Evaluate ALL available platforms objectively based on this campaign's goals, audience, budget, and team capability. Do NOT default to LinkedIn and Google — consider Meta, YouTube, industry publications, programmatic, and any other platform that fits. Only recommend LinkedIn and/or Google when they are genuinely the best fit for the specific campaign need.
 - Every recommendation should include not just WHAT to do but WHY it matters and HOW to do it step-by-step
 - Be specific to B2B legal technology — "solicitors in the UK" not "your target audience"
 - Include realistic benchmarks for legal tech B2B, not generic B2B numbers

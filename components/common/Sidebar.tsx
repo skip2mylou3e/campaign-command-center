@@ -11,11 +11,13 @@ import {
   Settings,
   Menu,
   X,
+  Layers,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/quick-ask', label: 'Quick Ask', icon: MessageSquare },
+  { href: '/content-generator', label: 'Content Generator', icon: Layers },
   { href: '/plan', label: 'Plan a Campaign', icon: Rocket },
   { href: '/campaigns', label: 'My Campaigns', icon: FolderOpen },
   { href: '/glossary', label: 'Glossary', icon: BookOpen },
