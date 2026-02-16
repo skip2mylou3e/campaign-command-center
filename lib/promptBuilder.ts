@@ -55,6 +55,18 @@ export function buildExportablePrompt(brief: CampaignBrief, config: TeamConfig):
     sections.push(`"${brief.freeText}"`);
   }
 
+  if (brief.uploadedDocuments && brief.uploadedDocuments.length > 0) {
+    sections.push(`\n## UPLOADED REFERENCE DOCUMENTS\n`);
+    sections.push(`The following reference documents were provided. Use their content to inform your recommendations:\n`);
+    for (const doc of brief.uploadedDocuments) {
+      if (!doc.content.trim()) continue;
+      const typeLabel = doc.docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      sections.push(`### [${typeLabel}] ${doc.name || doc.filename || 'Untitled'}`);
+      sections.push(doc.content);
+      sections.push('');
+    }
+  }
+
   // Platform reference data
   sections.push(`\n## PLATFORM REFERENCE DATA\n`);
   sections.push(`Here is reference data for the advertising platforms available in our markets. Use this to ground your recommendations in realistic benchmarks:\n`);

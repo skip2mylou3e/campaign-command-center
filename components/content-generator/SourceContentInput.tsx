@@ -1,7 +1,9 @@
 'use client';
 
-import { useRef } from 'react';
-import { Upload, X } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Upload, X, Loader2 } from 'lucide-react';
+
+const PARSED_EXTENSIONS = ['pdf', 'docx'];
 
 interface Props {
   value: string;
@@ -10,17 +12,44 @@ interface Props {
 
 export default function SourceContentInput({ value, onChange }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isParsing, setIsParsing] = useState(false);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
+
+    const ext = file.name.split('.').pop()?.toLowerCase();
+
+    if (ext && PARSED_EXTENSIONS.includes(ext)) {
+      setIsParsing(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/api/upload/parse', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to parse file');
+        }
+        const { text } = await response.json();
+        onChange(text);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to parse file');
+      } finally {
+        setIsParsing(false);
+      }
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
       onChange(text);
     };
     reader.readAsText(file);
-    e.target.value = '';
   };
 
   return (
@@ -43,15 +72,19 @@ export default function SourceContentInput({ value, onChange }: Props) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1.5 text-xs text-dd-teal hover:text-dd-teal-dark transition-colors"
+            disabled={isParsing}
+            className="flex items-center gap-1.5 text-xs text-dd-teal hover:text-dd-teal-dark transition-colors disabled:opacity-50"
           >
-            <Upload size={14} />
-            Upload .txt file
+            {isParsing ? (
+              <><Loader2 size={14} className="animate-spin" /> Extracting text...</>
+            ) : (
+              <><Upload size={14} /> Upload file (.txt, .pdf, .docx)</>
+            )}
           </button>
           <input
             ref={fileInputRef}
             type="file"
-            accept=".txt"
+            accept=".txt,.pdf,.docx"
             onChange={handleFileUpload}
             className="hidden"
           />

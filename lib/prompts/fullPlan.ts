@@ -181,5 +181,15 @@ export function buildBriefContext(brief: CampaignBrief): string {
   if (brief.additionalContext) lines.push(`Additional Context: ${brief.additionalContext}`);
   if (brief.freeText) lines.push(`\nAdditional context in the team member's own words:\n"${brief.freeText}"`);
 
+  if (brief.uploadedDocuments && brief.uploadedDocuments.length > 0) {
+    lines.push('\n--- UPLOADED REFERENCE DOCUMENTS ---');
+    for (const doc of brief.uploadedDocuments) {
+      if (!doc.content.trim()) continue;
+      const typeLabel = doc.docType.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      lines.push(`\n[${typeLabel}] ${doc.name || doc.filename || 'Untitled'}`);
+      lines.push(doc.content);
+    }
+  }
+
   return lines.join('\n');
 }

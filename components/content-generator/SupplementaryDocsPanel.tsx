@@ -1,10 +1,12 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, Plus, X, Upload, Star } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, X, Upload, Star, Loader2 } from 'lucide-react';
 import { SupplementaryDoc, SupplementaryDocType, ContentIntent } from '@/lib/content-generator/types';
 import { supplementaryDocTypes, intentConfigs } from '@/lib/content-generator/data/intentConfig';
 import { v4 as uuidv4 } from 'uuid';
+
+const PARSED_EXTENSIONS = ['pdf', 'docx'];
 
 interface Props {
   docs: SupplementaryDoc[];
@@ -15,6 +17,7 @@ interface Props {
 export default function SupplementaryDocsPanel({ docs, onChange, contentIntent }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [parsingIds, setParsingIds] = useState<Set<string>>(new Set());
 
   const intentConfig = contentIntent ? intentConfigs.find(i => i.id === contentIntent) : null;
 
@@ -36,16 +39,46 @@ export default function SupplementaryDocsPanel({ docs, onChange, contentIntent }
     onChange(docs.map(d => d.id === id ? { ...d, [field]: value } : d));
   };
 
-  const handleFileUpload = (docId: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (docId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = '';
+
+    const ext = file.name.split('.').pop()?.toLowerCase();
+
+    if (ext && PARSED_EXTENSIONS.includes(ext)) {
+      setParsingIds(prev => new Set(prev).add(docId));
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await fetch('/api/upload/parse', {
+          method: 'POST',
+          body: formData,
+        });
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'Failed to parse file');
+        }
+        const { text } = await response.json();
+        onChange(docs.map(d => d.id === docId ? { ...d, content: text, filename: file.name, name: d.name || file.name } : d));
+      } catch (error) {
+        alert(error instanceof Error ? error.message : 'Failed to parse file');
+      } finally {
+        setParsingIds(prev => {
+          const next = new Set(prev);
+          next.delete(docId);
+          return next;
+        });
+      }
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
       onChange(docs.map(d => d.id === docId ? { ...d, content: text, filename: file.name, name: d.name || file.name } : d));
     };
     reader.readAsText(file);
-    e.target.value = '';
   };
 
   const getDocSuggestionLevel = (docType: SupplementaryDocType): 'critical' | 'helpful' | null => {
@@ -157,15 +190,19 @@ export default function SupplementaryDocsPanel({ docs, onChange, contentIntent }
                   <button
                     type="button"
                     onClick={() => fileInputRefs.current[doc.id]?.click()}
-                    className="flex items-center gap-1 text-xs text-dd-teal hover:text-dd-teal-dark transition-colors"
+                    disabled={parsingIds.has(doc.id)}
+                    className="flex items-center gap-1 text-xs text-dd-teal hover:text-dd-teal-dark transition-colors disabled:opacity-50"
                   >
-                    <Upload size={12} />
-                    Upload .txt
+                    {parsingIds.has(doc.id) ? (
+                      <><Loader2 size={12} className="animate-spin" /> Extracting text...</>
+                    ) : (
+                      <><Upload size={12} /> Upload file</>
+                    )}
                   </button>
                   <input
                     ref={(el) => { fileInputRefs.current[doc.id] = el; }}
                     type="file"
-                    accept=".txt"
+                    accept=".txt,.pdf,.docx"
                     onChange={(e) => handleFileUpload(doc.id, e)}
                     className="hidden"
                   />

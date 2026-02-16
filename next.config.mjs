@@ -4,7 +4,7 @@ const nextConfig = {
     remotePatterns: [],
   },
   experimental: {
-    serverComponentsExternalPackages: ['@anthropic-ai/sdk'],
+    serverComponentsExternalPackages: ['@anthropic-ai/sdk', 'pdf-parse', 'mammoth'],
   },
 };
 

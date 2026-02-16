@@ -1,3 +1,14 @@
+export type DocumentType = 'brief' | 'research' | 'brand_guidelines' | 'competitive_analysis' | 'creative_assets' | 'past_campaign' | 'other';
+
+export interface UploadedDocument {
+  id: string;
+  name: string;
+  filename: string;
+  docType: DocumentType;
+  content: string;
+  charCount: number;
+}
+
 export interface Campaign {
   id: string;
   name: string;
@@ -33,6 +44,7 @@ export interface CampaignBrief {
   pastLearnings?: string;
   internalConstraints?: string;
   additionalContext?: string;
+  uploadedDocuments?: UploadedDocument[];
 }
 
 export interface CampaignPlan {

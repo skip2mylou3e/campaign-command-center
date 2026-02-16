@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { freeText } = await request.json();
+    const { freeText, uploadedDocuments } = await request.json();
 
     if (!freeText?.trim()) {
       return Response.json({ error: 'Description is required' }, { status: 400 });
@@ -38,6 +38,7 @@ Analyze their description and generate 4-6 follow-up questions that cover the mo
 - Any existing assets, past learnings, or constraints
 
 DO NOT ask about things the user already clearly stated. Only ask about gaps.
+If reference documents are attached, consider their content when identifying gaps. Do not ask about things already answered in the documents.
 Keep questions conversational and friendly — not like a form.
 
 Also suggest a short campaign name based on what they described.
@@ -57,7 +58,7 @@ Respond ONLY with valid JSON in this exact format:
 No markdown fences. No preamble. No commentary outside the JSON.`,
       messages: [{
         role: 'user',
-        content: `Here's what the team member wrote about their campaign:\n\n"${freeText}"`,
+        content: buildAnalyzeUserMessage(freeText, uploadedDocuments),
       }],
     });
 
@@ -80,4 +81,24 @@ No markdown fences. No preamble. No commentary outside the JSON.`,
       { status: 500 }
     );
   }
+}
+
+function buildAnalyzeUserMessage(
+  freeText: string,
+  uploadedDocuments?: { name: string; docType: string; content: string }[]
+): string {
+  let message = `Here's what the team member wrote about their campaign:\n\n"${freeText}"`;
+
+  if (uploadedDocuments && uploadedDocuments.length > 0) {
+    const docsWithContent = uploadedDocuments.filter(d => d.content?.trim());
+    if (docsWithContent.length > 0) {
+      message += '\n\n--- ATTACHED REFERENCE DOCUMENTS ---';
+      for (const doc of docsWithContent) {
+        const typeLabel = doc.docType.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+        message += `\n\n[${typeLabel}] ${doc.name || 'Untitled'}\n${doc.content}`;
+      }
+    }
+  }
+
+  return message;
 }

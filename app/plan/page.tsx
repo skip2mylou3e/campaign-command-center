@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import { Sparkles, FileText, ChevronRight, ChevronLeft, Info, Loader2, MessageSquare } from 'lucide-react';
-import { CampaignBrief, Campaign } from '@/lib/types';
+import { CampaignBrief, Campaign, UploadedDocument } from '@/lib/types';
 import { getTeamConfig } from '@/lib/storage';
 import { apiSaveCampaign } from '@/lib/campaignApi';
 import { buildExportablePrompt } from '@/lib/promptBuilder';
 import { parseJsonResponse } from '@/lib/jsonRepair';
 import CopyButton from '@/components/common/CopyButton';
 import LoadingTips from '@/components/common/LoadingTips';
+import DocumentUploadPanel from '@/components/plan/DocumentUploadPanel';
 
 const objectives = [
   'Brand Awareness',
@@ -80,6 +81,7 @@ export default function PlanPage() {
   const [showFollowUp, setShowFollowUp] = useState(false);
   const [suggestedName, setSuggestedName] = useState('');
   const [followUpQuestions, setFollowUpQuestions] = useState<{id: string; question: string; hint: string; answer: string}[]>([]);
+  const [docsCollapsed, setDocsCollapsed] = useState(true);
 
   const [brief, setBrief] = useState<CampaignBrief>({
     outputMode: 'auto_generate',
@@ -104,6 +106,7 @@ export default function PlanPage() {
     pastLearnings: '',
     internalConstraints: '',
     additionalContext: '',
+    uploadedDocuments: [],
   });
 
   const updateBrief = (field: keyof CampaignBrief, value: unknown) => {
@@ -136,7 +139,10 @@ export default function PlanPage() {
       const response = await fetch('/api/campaigns/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ freeText: brief.freeText }),
+        body: JSON.stringify({
+          freeText: brief.freeText,
+          uploadedDocuments: brief.uploadedDocuments?.filter(d => d.content.trim()) || [],
+        }),
       });
 
       if (!response.ok) {
@@ -431,6 +437,14 @@ export default function PlanPage() {
             className="w-full rounded-lg border border-dd-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-dd-teal focus:border-dd-teal resize-none"
             disabled={isAnalyzing}
           />
+          <div className="mt-4">
+            <DocumentUploadPanel
+              documents={brief.uploadedDocuments || []}
+              onChange={(docs: UploadedDocument[]) => updateBrief('uploadedDocuments', docs)}
+              isCollapsed={docsCollapsed}
+              onToggleCollapse={() => setDocsCollapsed(!docsCollapsed)}
+            />
+          </div>
           <div className="flex justify-between mt-4">
             <button
               onClick={() => setEntryPath(null)}
@@ -872,6 +886,15 @@ export default function PlanPage() {
                 placeholder="Industry events, regulatory changes, seasonal patterns, executive priorities..."
                 rows={2}
                 className="w-full rounded-lg border border-dd-border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-dd-teal focus:border-dd-teal resize-none"
+              />
+            </div>
+            {/* Document upload */}
+            <div>
+              <DocumentUploadPanel
+                documents={brief.uploadedDocuments || []}
+                onChange={(docs: UploadedDocument[]) => updateBrief('uploadedDocuments', docs)}
+                isCollapsed={docsCollapsed}
+                onToggleCollapse={() => setDocsCollapsed(!docsCollapsed)}
               />
             </div>
           </div>
