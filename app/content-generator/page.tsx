@@ -5,16 +5,13 @@ import { Sparkles, FileText, ArrowLeft, BookOpen } from 'lucide-react';
 import {
   CGEInput,
   ContentIntent,
-  TargetAudience,
-  ToneEmphasis,
-  SupplementaryDoc,
   ChannelGroupResult,
   OutputCategory,
   GeneratedOutput,
   SmartDefaults,
 } from '@/lib/content-generator/types';
 import { intentConfigs } from '@/lib/content-generator/data/intentConfig';
-import { outputTypes, outputCategories } from '@/lib/content-generator/data/outputTypes';
+import { outputTypes } from '@/lib/content-generator/data/outputTypes';
 import { runGuardrailChecks } from '@/lib/content-generator/guardrails';
 
 import SourceContentInput from '@/components/content-generator/SourceContentInput';
