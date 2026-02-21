@@ -1,13 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Linkedin, Mail, Megaphone, FileText, Briefcase, Globe, Download, Copy } from 'lucide-react';
+import { Linkedin, Mail, Megaphone, FileText, Briefcase, Globe, Download, Copy, RefreshCw } from 'lucide-react';
 import { ChannelGroupResult, OutputCategory } from '@/lib/content-generator/types';
 import { outputCategories } from '@/lib/content-generator/data/outputTypes';
 import OutputCard from './OutputCard';
+import FeedbackPanel from './FeedbackPanel';
 
 interface Props {
   results: Record<string, ChannelGroupResult>;
+  onRegenerate: (channelGroup: string, feedback: string) => void;
 }
 
 const categoryIcons: Record<OutputCategory, typeof Linkedin> = {
@@ -19,14 +21,20 @@ const categoryIcons: Record<OutputCategory, typeof Linkedin> = {
   website: Globe,
 };
 
-export default function OutputView({ results }: Props) {
-  const activeGroups = Object.values(results).filter(r => r.status === 'complete' && r.outputs.length > 0);
-  const [activeTab, setActiveTab] = useState<string>(activeGroups[0]?.channelGroup || '');
+export default function OutputView({ results, onRegenerate }: Props) {
+  // Include groups that are complete OR currently regenerating (so the tab stays visible)
+  const visibleGroups = Object.values(results).filter(
+    r => (r.status === 'complete' && r.outputs.length > 0) || r.status === 'generating'
+  );
+  const [activeTab, setActiveTab] = useState<string>(visibleGroups[0]?.channelGroup || '');
 
   const currentGroup = results[activeTab];
 
+  // For copy/download, only use completed groups
+  const completedGroups = Object.values(results).filter(r => r.status === 'complete' && r.outputs.length > 0);
+
   const handleCopyAll = async () => {
-    const allContent = activeGroups
+    const allContent = completedGroups
       .flatMap(g => g.outputs.map(o => `## ${o.outputTypeLabel}\n\n${o.content}`))
       .join('\n\n---\n\n');
     await navigator.clipboard.writeText(allContent);
@@ -35,7 +43,7 @@ export default function OutputView({ results }: Props) {
   const handleDownload = (format: 'md' | 'txt') => {
     const ext = format;
     const separator = format === 'md' ? '\n\n---\n\n' : '\n\n========================================\n\n';
-    const content = activeGroups
+    const content = completedGroups
       .map(g => {
         const catLabel = outputCategories.find(c => c.id === g.channelGroup)?.label || g.channelGroup;
         const header = format === 'md' ? `# ${catLabel}` : catLabel.toUpperCase();
@@ -58,7 +66,7 @@ export default function OutputView({ results }: Props) {
     URL.revokeObjectURL(url);
   };
 
-  if (activeGroups.length === 0) {
+  if (visibleGroups.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-dd-gray">No content was generated. Try again with different settings.</p>
@@ -92,7 +100,7 @@ export default function OutputView({ results }: Props) {
           .txt
         </button>
         <span className="text-xs text-dd-gray ml-auto">
-          {activeGroups.reduce((sum, g) => sum + g.outputs.length, 0)} content assets generated
+          {completedGroups.reduce((sum, g) => sum + g.outputs.length, 0)} content assets generated
         </span>
       </div>
 
@@ -101,10 +109,11 @@ export default function OutputView({ results }: Props) {
         {/* Tab sidebar */}
         <div className="md:w-56 shrink-0">
           <div className="flex md:flex-col gap-1 overflow-x-auto md:overflow-visible">
-            {activeGroups.map((group) => {
+            {visibleGroups.map((group) => {
               const catInfo = outputCategories.find(c => c.id === group.channelGroup);
               const Icon = categoryIcons[group.channelGroup as OutputCategory] || FileText;
               const isActive = activeTab === group.channelGroup;
+              const isRegenerating = group.status === 'generating';
 
               return (
                 <button
@@ -116,7 +125,11 @@ export default function OutputView({ results }: Props) {
                       : 'text-dd-gray hover:text-dd-slate hover:bg-gray-50 border-l-2 border-transparent'
                   }`}
                 >
-                  <Icon size={16} />
+                  {isRegenerating ? (
+                    <RefreshCw size={16} className="animate-spin" />
+                  ) : (
+                    <Icon size={16} />
+                  )}
                   <span>{catInfo?.label || group.channelGroup}</span>
                   <span className="text-xs bg-gray-100 px-1.5 py-0.5 rounded-full ml-auto">
                     {group.outputs.length}
@@ -129,9 +142,27 @@ export default function OutputView({ results }: Props) {
 
         {/* Content area */}
         <div className="flex-1 space-y-4">
-          {currentGroup?.outputs.map((output, i) => (
-            <OutputCard key={`${output.outputTypeId}-${i}`} output={output} />
-          ))}
+          {currentGroup?.status === 'generating' ? (
+            <div className="flex flex-col items-center justify-center py-16 text-dd-teal">
+              <RefreshCw size={28} className="animate-spin mb-3" />
+              <p className="text-sm font-medium">Regenerating content...</p>
+              <p className="text-xs text-dd-gray mt-1">Applying your feedback</p>
+            </div>
+          ) : (
+            <>
+              {currentGroup?.outputs.map((output, i) => (
+                <OutputCard key={`${output.outputTypeId}-${i}`} output={output} />
+              ))}
+              {currentGroup?.status === 'complete' && (
+                <FeedbackPanel
+                  channelGroup={currentGroup.channelGroup}
+                  isRegenerating={false}
+                  feedbackHistory={currentGroup.feedbackHistory}
+                  onRegenerate={onRegenerate}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>

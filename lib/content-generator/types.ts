@@ -132,11 +132,18 @@ export interface GeneratedOutput {
   guardrailWarnings: string[];
 }
 
+export interface RegenerationFeedback {
+  feedback: string;
+  previousOutputs: GeneratedOutput[];
+  iterationNumber: number;
+}
+
 export interface ChannelGroupResult {
   channelGroup: OutputCategory;
   outputs: GeneratedOutput[];
   status: 'pending' | 'generating' | 'complete' | 'error';
   error?: string;
+  feedbackHistory?: RegenerationFeedback[];
 }
 
 // --- Session ---

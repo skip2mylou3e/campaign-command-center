@@ -1,4 +1,4 @@
-import { CGEInput, OutputCategory } from '../types';
+import { CGEInput, GeneratedOutput, OutputCategory } from '../types';
 import { buildBrandSystemPrompt, brandVoice } from '../data/brandVoice';
 import { products } from '../data/products';
 import { personas } from '../data/personas';
@@ -193,4 +193,34 @@ FORMATTING RULES:
   }
 
   return instructions;
+}
+
+export function buildFeedbackUserPrompt(feedback: string, channelGroup: OutputCategory): string {
+  const channelNames: Record<OutputCategory, string> = {
+    linkedin_social: 'LinkedIn + Social Media',
+    email: 'Email Campaigns',
+    ads: 'Digital Advertising',
+    blog: 'Blog + Thought Leadership',
+    sales_internal: 'Sales Enablement + Internal',
+    website: 'Website',
+  };
+
+  return `=== REVISION REQUEST ===
+
+The user has reviewed your ${channelNames[channelGroup]} content and wants changes:
+
+"${feedback}"
+
+Regenerate ALL outputs for this channel group, incorporating the feedback above. Requirements:
+- Apply the requested changes across all outputs in this channel group
+- Maintain the same === OUTPUT: [Output Type Name] === delimiters between outputs
+- Continue following all brand voice guidelines, quality guardrails, and format requirements
+- Include updated REVIEWER NOTES for each output
+- Do NOT explain what you changed — just produce the revised content`;
+}
+
+export function formatPreviousOutputsAsAssistant(outputs: GeneratedOutput[]): string {
+  return outputs
+    .map(o => `=== OUTPUT: ${o.outputTypeLabel} ===\n${o.content}`)
+    .join('\n\n');
 }

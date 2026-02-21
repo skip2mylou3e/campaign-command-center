@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { buildCGESystemPrompt, buildChannelUserPrompt } from '@/lib/content-generator/prompts/systemPrompt';
-import { OutputCategory } from '@/lib/content-generator/types';
+import { buildCGESystemPrompt, buildChannelUserPrompt, buildFeedbackUserPrompt, formatPreviousOutputsAsAssistant } from '@/lib/content-generator/prompts/systemPrompt';
+import { GeneratedOutput, OutputCategory } from '@/lib/content-generator/types';
 
 export const runtime = 'edge';
 export const maxDuration = 60;
@@ -17,7 +17,11 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { input, channelGroup } = await request.json();
+    const { input, channelGroup, regeneration } = await request.json() as {
+      input: { sourceContent: string; [key: string]: unknown };
+      channelGroup: string;
+      regeneration?: { feedback: string; previousOutputs: GeneratedOutput[] };
+    };
 
     if (!input?.sourceContent) {
       return Response.json({ error: 'Source content is required' }, { status: 400 });
@@ -28,8 +32,8 @@ export async function POST(request: NextRequest) {
     }
 
     const client = new Anthropic({ apiKey });
-    const systemPrompt = buildCGESystemPrompt(input);
-    const userPrompt = buildChannelUserPrompt(input, channelGroup as OutputCategory);
+    const systemPrompt = buildCGESystemPrompt(input as Parameters<typeof buildCGESystemPrompt>[0]);
+    const userPrompt = buildChannelUserPrompt(input as Parameters<typeof buildChannelUserPrompt>[0], channelGroup as OutputCategory);
 
     // Blog needs more tokens for 1,500-2,000 word posts
     const maxTokens = channelGroup === 'blog' ? 8000 : 4000;
@@ -42,9 +46,16 @@ export async function POST(request: NextRequest) {
           let continuationAttempts = 0;
           const maxContinuations = 3;
 
-          const messages: Anthropic.MessageParam[] = [
-            { role: 'user', content: userPrompt },
-          ];
+          // Build messages — multi-turn for regeneration, single-turn for initial generation
+          const messages: Anthropic.MessageParam[] = regeneration
+            ? [
+                { role: 'user', content: userPrompt },
+                { role: 'assistant', content: formatPreviousOutputsAsAssistant(regeneration.previousOutputs) },
+                { role: 'user', content: buildFeedbackUserPrompt(regeneration.feedback, channelGroup as OutputCategory) },
+              ]
+            : [
+                { role: 'user', content: userPrompt },
+              ];
 
           while (continuationAttempts <= maxContinuations) {
             const stream = client.messages.stream({

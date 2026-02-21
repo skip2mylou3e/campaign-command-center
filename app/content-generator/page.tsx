@@ -9,6 +9,7 @@ import {
   OutputCategory,
   GeneratedOutput,
   SmartDefaults,
+  RegenerationFeedback,
 } from '@/lib/content-generator/types';
 import { intentConfigs } from '@/lib/content-generator/data/intentConfig';
 import { outputTypes } from '@/lib/content-generator/data/outputTypes';
@@ -209,6 +210,91 @@ export default function ContentGeneratorPage() {
     setView('input');
   };
 
+  // Regenerate a single channel group with user feedback
+  const handleRegenerate = async (channelGroup: string, feedback: string) => {
+    const currentResult = results[channelGroup];
+    if (!currentResult) return;
+
+    // Save current outputs to feedback history
+    const previousOutputs = currentResult.outputs;
+    const existingHistory = currentResult.feedbackHistory || [];
+    const newFeedbackEntry: RegenerationFeedback = {
+      feedback,
+      previousOutputs,
+      iterationNumber: existingHistory.length + 1,
+    };
+    const updatedHistory = [...existingHistory, newFeedbackEntry];
+
+    // Set status to generating (stays on output view with inline spinner)
+    setResults(prev => ({
+      ...prev,
+      [channelGroup]: {
+        ...prev[channelGroup],
+        status: 'generating',
+        feedbackHistory: updatedHistory,
+      },
+    }));
+
+    try {
+      const response = await fetch('/api/content-generator/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          input,
+          channelGroup,
+          regeneration: { feedback, previousOutputs },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Regeneration failed: ${response.statusText}`);
+      }
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+      }
+
+      if (fullText.startsWith('__STREAM_ERROR__')) {
+        throw new Error(fullText.replace('__STREAM_ERROR__', ''));
+      }
+
+      // Parse and run guardrails
+      const parsedOutputs = parseChannelOutput(fullText, channelGroup as OutputCategory);
+      const checkedOutputs = parsedOutputs.map(o => ({
+        ...o,
+        guardrailWarnings: runGuardrailChecks(o.content, o.outputTypeId),
+      }));
+
+      setResults(prev => ({
+        ...prev,
+        [channelGroup]: {
+          channelGroup: channelGroup as OutputCategory,
+          outputs: checkedOutputs,
+          status: 'complete',
+          feedbackHistory: updatedHistory,
+        },
+      }));
+    } catch (error) {
+      // On error, restore previous outputs so the user doesn't lose content
+      setResults(prev => ({
+        ...prev,
+        [channelGroup]: {
+          channelGroup: channelGroup as OutputCategory,
+          outputs: previousOutputs,
+          status: 'complete',
+          error: error instanceof Error ? error.message : 'Regeneration failed',
+          feedbackHistory: updatedHistory,
+        },
+      }));
+    }
+  };
+
   const canGenerate = input.sourceContent.trim().length > 0 && input.selectedOutputTypes.length > 0;
   const selectedOutputCount = input.selectedOutputTypes.length;
   const actionLabel = input.outputMode === 'generate'
@@ -259,7 +345,7 @@ export default function ContentGeneratorPage() {
             </button>
           </div>
         </div>
-        <OutputView results={results} />
+        <OutputView results={results} onRegenerate={handleRegenerate} />
       </div>
     );
   }
