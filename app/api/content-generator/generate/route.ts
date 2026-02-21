@@ -17,11 +17,10 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { input, channelGroup, regeneration } = await request.json() as {
-      input: { sourceContent: string; [key: string]: unknown };
-      channelGroup: string;
-      regeneration?: { feedback: string; previousOutputs: GeneratedOutput[] };
-    };
+    const body = await request.json();
+    const input = body.input;
+    const channelGroup: string = body.channelGroup;
+    const regeneration: { feedback: string; previousOutputs: GeneratedOutput[] } | undefined = body.regeneration;
 
     if (!input?.sourceContent) {
       return Response.json({ error: 'Source content is required' }, { status: 400 });
@@ -32,8 +31,8 @@ export async function POST(request: NextRequest) {
     }
 
     const client = new Anthropic({ apiKey });
-    const systemPrompt = buildCGESystemPrompt(input as Parameters<typeof buildCGESystemPrompt>[0]);
-    const userPrompt = buildChannelUserPrompt(input as Parameters<typeof buildChannelUserPrompt>[0], channelGroup as OutputCategory);
+    const systemPrompt = buildCGESystemPrompt(input);
+    const userPrompt = buildChannelUserPrompt(input, channelGroup as OutputCategory);
 
     // Blog needs more tokens for 1,500-2,000 word posts
     const maxTokens = channelGroup === 'blog' ? 8000 : 4000;
