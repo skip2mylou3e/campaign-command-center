@@ -15,6 +15,7 @@ import {
   Compass,
   CalendarCheck,
   FileText,
+  ClipboardList,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -27,6 +28,7 @@ const navItems = [
   { href: '/event-navigator', label: 'Event Navigator', icon: Compass },
   { href: '/my-event-plans', label: 'My Event Plans', icon: CalendarCheck },
   { href: '/glossary', label: 'Glossary', icon: BookOpen },
+  { href: '/updates', label: 'Updates', icon: ClipboardList },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 
