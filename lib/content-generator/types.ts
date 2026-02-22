@@ -155,6 +155,10 @@ export interface CGESession {
   createdAt: string;
 }
 
+export interface SavedContentDraft extends CGESession {
+  name: string;
+}
+
 // --- Intent Configuration ---
 
 export interface IntentConfig {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { Sparkles, FileText, ArrowLeft, BookOpen } from 'lucide-react';
+import { Sparkles, FileText, ArrowLeft, BookOpen, Save, Check } from 'lucide-react';
+import { useSavedContent } from '@/lib/content-generator/hooks/useSavedContent';
 import {
   CGEInput,
   ContentIntent,
@@ -56,6 +57,10 @@ export default function ContentGeneratorPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showBrandPanel, setShowBrandPanel] = useState(false);
   const analyzeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const { saveDraft } = useSavedContent();
+  const [showSaveInput, setShowSaveInput] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const updateInput = useCallback(<K extends keyof CGEInput>(field: K, value: CGEInput[K]) => {
     setInput(prev => ({ ...prev, [field]: value }));
@@ -207,7 +212,19 @@ export default function ContentGeneratorPage() {
     setResults({});
     setExportedPrompt('');
     setSmartDefaults(null);
+    setShowSaveInput(false);
+    setDraftName('');
+    setSaveSuccess(false);
     setView('input');
+  };
+
+  const handleSaveDraft = () => {
+    if (!draftName.trim()) return;
+    saveDraft(draftName.trim(), input, results);
+    setShowSaveInput(false);
+    setDraftName('');
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 3000);
   };
 
   // Regenerate a single channel group with user feedback
@@ -330,6 +347,45 @@ export default function ContentGeneratorPage() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-xl font-bold text-dd-slate">Generated Content</h1>
           <div className="flex items-center gap-3">
+            {saveSuccess ? (
+              <span className="flex items-center gap-1.5 text-sm text-green-600">
+                <Check size={16} />
+                Saved!
+              </span>
+            ) : showSaveInput ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveDraft()}
+                  placeholder="Draft name..."
+                  className="text-sm border border-dd-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-dd-teal w-48"
+                  autoFocus
+                />
+                <button
+                  onClick={handleSaveDraft}
+                  disabled={!draftName.trim()}
+                  className="text-sm text-white bg-dd-teal hover:bg-dd-teal-dark px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => { setShowSaveInput(false); setDraftName(''); }}
+                  className="text-sm text-dd-gray hover:text-dd-slate transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowSaveInput(true)}
+                className="flex items-center gap-1.5 text-sm text-dd-teal hover:text-dd-teal-dark transition-colors"
+              >
+                <Save size={16} />
+                Save Draft
+              </button>
+            )}
             <button
               onClick={() => setView('input')}
               className="flex items-center gap-1.5 text-sm text-dd-teal hover:text-dd-teal-dark transition-colors"

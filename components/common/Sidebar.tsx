@@ -12,14 +12,20 @@ import {
   Menu,
   X,
   Layers,
+  Compass,
+  CalendarCheck,
+  FileText,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/quick-ask', label: 'Quick Ask', icon: MessageSquare },
   { href: '/content-generator', label: 'Content Generator', icon: Layers },
+  { href: '/my-content', label: 'My Content', icon: FileText },
   { href: '/plan', label: 'Plan a Campaign', icon: Rocket },
   { href: '/campaigns', label: 'My Campaigns', icon: FolderOpen },
+  { href: '/event-navigator', label: 'Event Navigator', icon: Compass },
+  { href: '/my-event-plans', label: 'My Event Plans', icon: CalendarCheck },
   { href: '/glossary', label: 'Glossary', icon: BookOpen },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];

@@ -8,12 +8,12 @@ export default function Error({
   reset: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] p-8">
+    <div className="flex flex-col items-center justify-center min-h-[50vh] p-8 text-center">
       <h2 className="text-lg font-semibold text-dd-slate mb-2">Something went wrong</h2>
       <p className="text-sm text-dd-gray mb-4">{error.message}</p>
       <button
         onClick={reset}
-        className="px-4 py-2 text-sm bg-dd-teal text-white rounded-lg hover:bg-dd-teal-dark transition-colors"
+        className="px-4 py-2 text-sm text-white bg-dd-teal hover:bg-dd-teal-dark rounded-lg transition-colors"
       >
         Try again
       </button>
