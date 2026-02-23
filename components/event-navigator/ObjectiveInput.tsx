@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Sparkles, Loader2 } from 'lucide-react';
+import { Search, Sparkles, Loader2, List } from 'lucide-react';
 import { ObjectiveParams, Country } from '@/lib/event-navigator/types';
 
 const placeholders = [
@@ -257,9 +257,10 @@ interface ObjectiveInputProps {
   params: ObjectiveParams;
   onParamsChange: (params: ObjectiveParams) => void;
   onSubmit: () => void;
+  onBrowseClick: () => void;
 }
 
-export default function ObjectiveInput({ params, onParamsChange, onSubmit }: ObjectiveInputProps) {
+export default function ObjectiveInput({ params, onParamsChange, onSubmit, onBrowseClick }: ObjectiveInputProps) {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
@@ -392,6 +393,13 @@ export default function ObjectiveInput({ params, onParamsChange, onSubmit }: Obj
         <p className="text-evn-text-secondary text-sm">
           Discover and score 104 industry events across Canada, UK &amp; Australia
         </p>
+        <button
+          onClick={onBrowseClick}
+          className="inline-flex items-center gap-1.5 text-xs text-evn-amber hover:text-evn-amber-dark transition-colors mt-1"
+        >
+          <List size={14} />
+          Browse all events
+        </button>
       </div>
 
       {/* Objective textarea */}

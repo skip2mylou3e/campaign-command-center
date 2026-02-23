@@ -212,6 +212,7 @@ export default function EventNavigatorPage() {
             params={params}
             onParamsChange={setParams}
             onSubmit={handleSubmit}
+            onBrowseClick={() => setShowBrowsePanel(true)}
           />
         )}
 
